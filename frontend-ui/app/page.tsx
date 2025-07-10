@@ -34,6 +34,7 @@ import { Avatar, Button, Flex, type GetProp, Space, Spin, message } from 'antd';
 import { createStyles } from 'antd-style';
 import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
+import CostPredictionForm from './CostPredictionForm';
 
 type BubbleDataType = {
   role: string;
@@ -265,10 +266,6 @@ const Independent: React.FC = () => {
   const [conversations, setConversations] = useState(DEFAULT_CONVERSATIONS_ITEMS);
   const [curConversation, setCurConversation] = useState(DEFAULT_CONVERSATIONS_ITEMS[0].key);
 
-  const [attachmentsOpen, setAttachmentsOpen] = useState(false);
-  const [attachedFiles, setAttachedFiles] = useState<GetProp<typeof Attachments, 'items'>>([]);
-
-  const [inputValue, setInputValue] = useState('');
 
   /**
    * 🔔 Please replace the BASE_URL, PATH, MODEL, API_KEY with your own values.
@@ -333,62 +330,6 @@ const Independent: React.FC = () => {
     },
   });
 
-  // ==================== Event ====================
-  const onSubmit = async (val: string) => {
-    console.log("----ss-s-s-s-");
-    if (!val) return;
-
-    if (loading) {
-      message.error('Request is in progress, please wait for the request to complete.');
-      return;
-    }
-
-    // setLoading(true); // 可选：你应该有个 setLoading 控制 loading 状态
-
-    try {
-      const response = await fetch("http://clearml-serving.us-east-1.elasticbeanstalk.com:8080/serve/cloud_cost_predict/", {
-        method: "POST",
-        headers: {
-          "accept": "application/json",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          "Service Name": "Cloud Storage",
-          "Region/Zone": "us-west1",
-          "Usage Quantity": 100.98,
-          "CPU Utilization (%)": 0.65,
-          "Memory Utilization (%)": 0.42,
-          "Network Inbound Data (Bytes)": 102400,
-          "Network Outbound Data (Bytes)": 204800,
-          "Total Cost (INR)": 11, // 如果后端 preprocess 里需要的话建议传入
-          "Usage Start Date": "28-06-2025 10:00",
-          "Usage End Date": "28-06-2025 12:00"
-        })
-      });
-
-      const result = await response.json();
-
-      if (result?.predicted_cost_usd) {
-        message.success(`预测结果：$${result.predicted_cost_usd[0].toFixed(2)}`);
-      } else {
-        message.error('没有返回预测结果');
-      }
-
-    } catch (error) {
-      console.error("API 请求错误:", error);
-      message.error('调用模型接口失败，请稍后重试');
-    } finally {
-      // setLoading(false); // 恢复 loading 状态
-    }
-
-    // 如果你还有 Chat-like 逻辑，也可以继续执行下去
-    onRequest({
-      stream: true,
-      message: { role: 'user', content: val },
-    });
-  };
-
-
   // ==================== Nodes ====================
   const chatSider = (
     <div className={styles.sider}>
@@ -401,7 +342,7 @@ const Independent: React.FC = () => {
           width={24}
           height={24}
         />
-        <span>AIOps</span>
+        <span>AIOps Platform</span>
       </div>
 
       {/* 🌟 添加会话 */}
@@ -524,7 +465,7 @@ const Independent: React.FC = () => {
           <Welcome
             variant="borderless"
             icon="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
-            title="Hello, I'm AIOps"
+            title="Hello, I'm your AI assistant"
             description="Base on CPU, MEM and Network to help your know your cost in advance."
             extra={
               <Space>
@@ -533,116 +474,9 @@ const Independent: React.FC = () => {
               </Space>
             }
           />
-          <Flex gap={16}>
-            <Prompts
-              items={[HOT_TOPICS]}
-              styles={{
-                list: { height: '100%' },
-                item: {
-                  flex: 1,
-                  backgroundImage: 'linear-gradient(123deg, #e5f4ff 0%, #efe7ff 100%)',
-                  borderRadius: 12,
-                  border: 'none',
-                },
-                subItem: { padding: 0, background: 'transparent' },
-              }}
-              onItemClick={(info) => {
-                onSubmit(info.data.description as string);
-              }}
-              className={styles.chatPrompt}
-            />
-
-            <Prompts
-              // items={[DESIGN_GUIDE]}
-              styles={{
-                item: {
-                  flex: 1,
-                  backgroundImage: 'linear-gradient(123deg, #e5f4ff 0%, #efe7ff 100%)',
-                  borderRadius: 12,
-                  border: 'none',
-                },
-                subItem: { background: '#ffffffa6' },
-              }}
-              onItemClick={(info) => {
-                onSubmit(info.data.description as string);
-              }}
-              className={styles.chatPrompt}
-            />
-          </Flex>
         </Space>
       )}
     </div>
-  );
-  const senderHeader = (
-    <Sender.Header
-      title="Upload File"
-      open={attachmentsOpen}
-      onOpenChange={setAttachmentsOpen}
-      styles={{ content: { padding: 0 } }}
-    >
-      <Attachments
-        beforeUpload={() => false}
-        items={attachedFiles}
-        onChange={(info) => setAttachedFiles(info.fileList)}
-        placeholder={(type) =>
-          type === 'drop'
-            ? { title: 'Drop file here' }
-            : {
-              icon: <CloudUploadOutlined />,
-              title: 'Upload files',
-              description: 'Click or drag files to this area to upload',
-            }
-        }
-      />
-    </Sender.Header>
-  );
-  const chatSender = (
-    <>
-      {/* 🌟 提示词 */}
-      <Prompts
-        // items={SENDER_PROMPTS}
-        onItemClick={(info) => {
-          onSubmit(info.data.description as string);
-        }}
-        styles={{
-          item: { padding: '6px 12px' },
-        }}
-        className={styles.senderPrompt}
-      />
-      {/* 🌟 输入框 */}
-      <Sender
-        value={inputValue}
-        header={senderHeader}
-        onSubmit={() => {
-          onSubmit(inputValue);
-          setInputValue('');
-        }}
-        onChange={setInputValue}
-        onCancel={() => {
-          abortController.current?.abort();
-        }}
-        prefix={
-          <Button
-            type="text"
-            icon={<PaperClipOutlined style={{ fontSize: 18 }} />}
-            onClick={() => setAttachmentsOpen(!attachmentsOpen)}
-          />
-        }
-        loading={loading}
-        className={styles.sender}
-        allowSpeech
-        actions={(_, info) => {
-          const { SendButton, LoadingButton, SpeechButton } = info.components;
-          return (
-            <Flex gap={4}>
-              <SpeechButton className={styles.speechButton} />
-              {loading ? <LoadingButton type="default" /> : <SendButton type="primary" />}
-            </Flex>
-          );
-        }}
-        placeholder="Ask or input / use skills"
-      />
-    </>
   );
 
   useEffect(() => {
@@ -662,7 +496,7 @@ const Independent: React.FC = () => {
 
       <div className={styles.chat}>
         {chatList}
-        {chatSender}
+        <CostPredictionForm />
       </div>
     </div>
   );

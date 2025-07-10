@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from joblib import dump
-from clearml import Task, Dataset, Logger, OutputModel
+from clearml import Task, Dataset
 
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
@@ -12,6 +12,14 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
+
+from sklearn.model_selection import KFold, cross_val_score
+from sklearn.metrics import (
+    make_scorer,
+    r2_score,
+    mean_squared_error,
+    mean_absolute_error,
+)
 
 # keep local version is same with online environment
 Task.add_requirements("scikit-learn", "1.7.0")
@@ -114,55 +122,42 @@ pipeline = Pipeline(
     ]
 )
 
-# traing
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+# -- K折交叉验证 --
+kf = KFold(n_splits=5, shuffle=True, random_state=42)  # 5折
+
+# RMSE需要自定义scorer
+rmse_scorer = make_scorer(
+    lambda y_true, y_pred: np.sqrt(mean_squared_error(y_true, y_pred)),
+    greater_is_better=False,
 )
+mae_scorer = make_scorer(mean_absolute_error, greater_is_better=False)
 
-# # 先根据时间戳排序
-# df_sorted = df.sort_values("Usage Start Date")
+# 计算每折分数（注意：sklearn对rmse/mae输出负数，需取反）
+r2_scores = cross_val_score(pipeline, X, y, cv=kf, scoring="r2")
+rmse_scores = -cross_val_score(pipeline, X, y, cv=kf, scoring=rmse_scorer)
+mae_scores = -cross_val_score(pipeline, X, y, cv=kf, scoring=mae_scorer)
+logger.report_scalar("metrics", "RMSE", value=rmse_scores.mean(), iteration=0)
+logger.report_scalar("metrics", "R2", value=r2_scores.mean(), iteration=1)
+logger.report_scalar("metrics", "MAPE", value=mae_scores.mean(), iteration=2)
+print(f"5-Fold CV R²:   Mean={r2_scores.mean():.4f}, Std={r2_scores.std():.4f}")
+print(f"5-Fold CV RMSE: Mean={rmse_scores.mean():.2f}, Std={rmse_scores.std():.2f}")
+print(f"5-Fold CV MAE:  Mean={mae_scores.mean():.2f}, Std={mae_scores.std():.2f}")
 
-# # 重新提取X, y（保持和df_sorted一致的索引顺序）
-# X_sorted = df_sorted[features]
-# y_sorted = df_sorted[target]
+# 可以将每折结果画成箱线图/柱状图
+plt.figure(figsize=(7, 5))
+plt.boxplot([rmse_scores, mae_scores, r2_scores], tick_labels=["RMSE", "MAE", "R²"])
+plt.title("5-Fold Cross-Validation Results")
+plt.ylabel("Score")
+plt.grid(axis="y")
+plt.tight_layout()
 
-# # 确定分割点（比如80%训练，20%测试）
-# split_index = int(len(df_sorted) * 0.8)
-
-# X_train = X_sorted.iloc[:split_index]
-# X_test = X_sorted.iloc[split_index:]
-# y_train = y_sorted.iloc[:split_index]
-# y_test = y_sorted.iloc[split_index:]
-
-
-pipeline.fit(X_train, y_train)
-y_pred = pipeline.predict(X_test)
-
-# measure of performance
-rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-r2 = r2_score(y_test, y_pred)
-mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100
-logger.report_scalar("metrics", "RMSE", value=rmse, iteration=0)
-logger.report_scalar("metrics", "R2", value=r2, iteration=1)
-logger.report_scalar("metrics", "MAPE", value=mape, iteration=2)
-print(f"✅ Done. RMSE: {rmse:.2f}, R2 Score: {r2:.4f}, MAPE: {mape:.2f}%")
-
-
-plt.figure(figsize=(8, 4))
-plt.plot(y_test.values, label="Actual", linewidth=2)
-plt.plot(y_pred, label="Predicted", linewidth=2)
-plt.xlabel("Sample Index")
-plt.ylabel("Cloud Cost")
-plt.legend()
-plt.grid(True)
-
-# upload figure to clearml
 task.get_logger().report_matplotlib_figure(
-    title="Prediction vs Actual (Line Plot)",
-    series="Result Curve",
+    title="5-Fold Cross-Validation Results",
+    series="CV Boxplot",
     figure=plt.gcf(),
-    iteration=0,
+    iteration=99,
 )
+plt.show()
 plt.close()
 
 dump(pipeline, filename="cost-model.joblib", compress=9)
