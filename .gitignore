@@ -1,0 +1,47 @@
+.ml-models/__pycache__
+.frontend-ui/node_modules
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+.frontend-ui/.pnp
+.frontend-ui/.pnp.*
+.frontend-ui/.yarn/*
+.frontend-ui/!.yarn/patches
+.frontend-ui/!.yarn/plugins
+.frontend-ui/!.yarn/releases
+.frontend-ui/!.yarn/versions
+
+# testing
+.frontend-ui/coverage
+
+# next.js
+.frontend-ui/.next/
+.frontend-ui/out/
+
+# production
+.frontend-ui/build
+
+# misc
+.frontend-ui/.DS_Store
+.frontend-ui/*.pem
+
+# debug
+.frontend-ui/npm-debug.log*
+.frontend-ui/yarn-debug.log*
+.frontend-ui/yarn-error.log*
+.frontend-ui/.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.frontend-ui/.env*
+
+# vercel
+.frontend-ui/.vercel
+
+# typescript
+.frontend-ui/*.tsbuildinfo
+.frontend-ui/next-env.d.ts
+
+*.joblib
+*.pkl
