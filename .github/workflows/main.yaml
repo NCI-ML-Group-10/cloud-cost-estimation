@@ -47,4 +47,4 @@ jobs:
       - name: Start the task
         id: launch_task
         run: |
-          clearml-serving --id c0282de094604bc3aec22a6778473043 model add --engine sklearn --endpoint "cloud_cost_predict" --preprocess "inference_preprocess.py" --name "Bagging Tree Regressor Training - cost-model" --project "NCI-ML-Project"
+          clearml-serving --id c0282de094604bc3aec22a6778473043 model add --engine sklearn --endpoint "cloud_cost_predict" --preprocess "ml-models/inference_preprocess.py" --name "Bagging Tree Regressor Training - cost-model" --project "NCI-ML-Project"
