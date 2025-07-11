@@ -18,7 +18,7 @@ jobs:
           python-version: '3.10'
       - name: Install ClearML
         run: |
-          python -r ml-models/requirements.txt install
+          python install -r ml-models/requirements.txt 
       - name: Start the task
         id: launch_task
         run: |
