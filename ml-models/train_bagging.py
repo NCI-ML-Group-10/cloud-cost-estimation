@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from joblib import dump
-from clearml import Task, Dataset
+from clearml import Task, Dataset, Model, OutputModel
 
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
@@ -157,9 +157,11 @@ task.get_logger().report_matplotlib_figure(
     figure=plt.gcf(),
     iteration=99,
 )
-plt.show()
+# plt.show()
 plt.close()
 
 dump(pipeline, filename="cost-model.joblib", compress=9)
 
-task.get
+for i in task.get_models().output:
+    print(i.id)
+    Model(model_id=i.id).publish()
