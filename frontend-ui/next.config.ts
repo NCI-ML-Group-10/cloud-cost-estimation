@@ -2,7 +2,7 @@
  * @Author: Bryan x23399937@student.ncirl.ie
  * @Date: 2025-06-20 20:12:57
  * @LastEditors: Bryan x23399937@student.ncirl.ie
- * @LastEditTime: 2025-07-10 22:35:06
+ * @LastEditTime: 2025-07-11 00:12:37
  * @FilePath: /cloud-cost-estimation/frontend-ui/next.config.ts
  * @Description: 
  * 
@@ -12,6 +12,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  output: 'export',
 };
 
 module.exports = {
