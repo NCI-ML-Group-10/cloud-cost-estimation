@@ -22,7 +22,7 @@ jobs:
       - name: Start the task
         id: launch_task
         run: |
-          python train_bagging.py
+          python ml-models/train_bagging.py
 
   # compare-models:
   #   env:
