@@ -27,6 +27,7 @@ jobs:
 
 
   release-model:
+    needs: model-training
     env:
       CLEARML_API_ACCESS_KEY: ${{ secrets.CLEARML_API_ACCESS_KEY }}
       CLEARML_API_SECRET_KEY: ${{ secrets.CLEARML_API_SECRET_KEY }}
