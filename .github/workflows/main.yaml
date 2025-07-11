@@ -18,7 +18,8 @@ jobs:
           python-version: '3.10'
       - name: Install ClearML
         run: |
-          python install -r ml-models/requirements.txt 
+          python -m pip install --upgrade pip clearml pandas tabulate github3.py Jinja2
+          pip install -r requirement.txt
       - name: Start the task
         id: launch_task
         run: |
