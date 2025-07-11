@@ -161,3 +161,5 @@ plt.show()
 plt.close()
 
 dump(pipeline, filename="cost-model.joblib", compress=9)
+
+task.get
