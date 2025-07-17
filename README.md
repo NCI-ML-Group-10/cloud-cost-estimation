@@ -2,7 +2,7 @@
  * @Author: Bryan x23399937@student.ncirl.ie
  * @Date: 2025-06-20 19:06:26
  * @LastEditors: Bryan x23399937@student.ncirl.ie
- * @LastEditTime: 2025-07-17 21:16:45
+ * @LastEditTime: 2025-07-17 21:23:16
  * @FilePath: /cloud-cost-estimation/README.md
  * @Description: 
  * 
@@ -25,6 +25,13 @@ A Machine Learning Framework For Predictive Cloud Cost Estimation in AIOps
 ├── /clearml-serving/             # clearml serving docker-compose file
 ├── /clearml-server/              # clearml server docker-compose file
 ```
+
+## Cloud Cost Estimation web site
+
+### frontend address: 
+- http://
+### backend address: 
+- http://clearml-serving.us-east-1.elasticbeanstalk.com:8080/serve/cloud_cost_predict
 
 ## Model Serving endpoint curl example
 
