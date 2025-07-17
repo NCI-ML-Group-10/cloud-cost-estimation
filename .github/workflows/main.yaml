@@ -19,11 +19,11 @@ jobs:
       - name: Install ClearML
         run: |
           python -m pip install --upgrade pip clearml pandas tabulate github3.py Jinja2
-          pip install -r ml-models/requirements.txt
+          pip install -r BoyangJiang-23399937/requirements.txt
       - name: Start the task
         id: launch_task
         run: |
-          python ml-models/train_bagging.py
+          python BoyangJiang-23399937/train_bagging.py
 
 
   release-model:
@@ -47,4 +47,4 @@ jobs:
       - name: Start the task
         id: launch_task
         run: |
-          clearml-serving --id c0282de094604bc3aec22a6778473043 model add --engine sklearn --endpoint "cloud_cost_predict" --preprocess "ml-models/inference_preprocess.py" --name "Bagging Tree Regressor Training - cost-model" --project "NCI-ML-Project"
+          clearml-serving --id c0282de094604bc3aec22a6778473043 model add --engine sklearn --endpoint "cloud_cost_predict" --preprocess "BoyangJiang-23399937/inference_preprocess.py" --name "Bagging Tree Regressor Training - cost-model" --project "NCI-ML-Project"
