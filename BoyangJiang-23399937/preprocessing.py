@@ -9,7 +9,6 @@ Description:
 Copyright (c) 2025 by Bryan Jiang, All Rights Reserved.
 """
 
-# preprocessing.py
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 import pandas as pd

@@ -4,20 +4,21 @@ import datetime as dt
 import pandas as pd
 
 
-# ✅ ClearML-Serving 要求类名必须是 Preprocess
+# ClearML-Serving require the class name must be Preprocess
 class Preprocess(object):
     def __init__(self):
-        print("-------------------this is test 222222")
-        pass  # 可初始化时加载一些统计信息或缓存
+        print("-----------------this is boyang jiang model serving-------------------")
+        pass
 
     def preprocess(
         self, body: Dict, state: dict, collect_custom_statistics_fn=None
     ) -> Any:
-        print("-------------------this is preprocess--------")
+        print(
+            "-------------------this is boyang jiang model serving preprocess--------"
+        )
         """
-        从 HTTP JSON 请求体中解析并构造模型输入的二维数组
+        from HTTP JSON get request data
         """
-        # 获取原始字段
         service_name = body.get("Service Name", "Unknown")
         region_zone = body.get("Region/Zone", "Unknown")
         usage_quantity = float(body.get("Usage Quantity", 0.0))
@@ -27,7 +28,7 @@ class Preprocess(object):
         net_out = float(body.get("Network Outbound Data (Bytes)", 0.0))
         total_cost = float(body.get("Total Cost (INR)", 0.0))
 
-        # 时间处理
+        # time handling
         try:
             start_dt = dt.datetime.strptime(
                 body.get("Usage Start Date", ""), "%d-%m-%Y %H:%M"
@@ -46,11 +47,9 @@ class Preprocess(object):
         duration_minutes = (end_dt - start_dt).total_seconds() / 60.0
         duration_minutes = max(duration_minutes, 0.0)
 
-        # 推理时无法重建 groupby 平均字段，使用总价近似
         service_avg_cost = total_cost
         region_zone_avg_cost = total_cost
 
-        # 构建顺序必须与训练一致，分类字段放最后
         return pd.DataFrame(
             [
                 [
@@ -94,7 +93,7 @@ class Preprocess(object):
         self, data: Any, state: dict, collect_custom_statistics_fn=None
     ) -> Dict:
         """
-        返回预测结果字典
+        return the result
         """
         return {
             "predicted_cost_usd": (

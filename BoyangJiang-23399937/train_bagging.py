@@ -3,16 +3,15 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from joblib import dump
-from clearml import Task, Dataset, Model, OutputModel
+from clearml import Task, Dataset, Model
 
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.ensemble import BaggingRegressor
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
-
 from sklearn.model_selection import KFold, cross_val_score
 from sklearn.metrics import (
     make_scorer,
@@ -32,7 +31,7 @@ task = Task.init(
     output_uri=True,
 )
 
-# ✅ 绑定参数（这些参数会被 HPO 动态注入）
+# clearml HPO
 params = {
     "regressor__n_estimators": 30,
     "regressor__max_samples": 80,
@@ -47,10 +46,10 @@ dataset = Dataset.get(
     dataset_project="NCI-ML-Project", dataset_name="Gcp_Cloud_Billing"
 )
 dataset_path = dataset.get_local_copy()
-csv_path = os.path.join(dataset_path, "gcp_final_approved_dataset.csv")
+csv_path = os.path.join(dataset_path, "gcp_dataset.csv")
 df = pd.read_csv(csv_path)
 
-# ✅ 特征工程逻辑（与你 preprocessing.py 保持一致）
+# feature engineering
 df["Service_Avg_Cost"] = (
     df.groupby("Service Name")["Total Cost (INR)"].transform("mean").fillna(0)
 )
@@ -95,26 +94,25 @@ features = cat_cols + num_cols
 X = df[features]
 y = df[target]
 
-# build pipeline
+# transformation
 preprocessor = ColumnTransformer(
     transformers=[
         ("num", StandardScaler(), num_cols),
         ("cat", OneHotEncoder(handle_unknown="ignore"), cat_cols),
     ]
 )
-
+# build a pipeline
 pipeline = Pipeline(
     [
         ("preprocessor", preprocessor),
         (
             "regressor",
             BaggingRegressor(
-                estimator=DecisionTreeRegressor(
+                estimator=RandomForestRegressor(
                     max_depth=params["regressor__estimator__max_depth"]
                 ),
                 n_estimators=params["regressor__n_estimators"],
-                max_samples=params["regressor__max_samples"]
-                / 100.0,  # 注意如果是百分数要转换
+                max_samples=params["regressor__max_samples"] / 100.0,
                 random_state=42,
                 n_jobs=-1,
             ),
@@ -122,17 +120,16 @@ pipeline = Pipeline(
     ]
 )
 
-# -- K折交叉验证 --
-kf = KFold(n_splits=5, shuffle=True, random_state=42)  # 5折
+# K-Fold Cross-Validation
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
 
-# RMSE需要自定义scorer
 rmse_scorer = make_scorer(
     lambda y_true, y_pred: np.sqrt(mean_squared_error(y_true, y_pred)),
     greater_is_better=False,
 )
 mae_scorer = make_scorer(mean_absolute_error, greater_is_better=False)
 
-# 计算每折分数（注意：sklearn对rmse/mae输出负数，需取反）
+# calculate the each cross score
 r2_scores = cross_val_score(pipeline, X, y, cv=kf, scoring="r2")
 rmse_scores = -cross_val_score(pipeline, X, y, cv=kf, scoring=rmse_scorer)
 mae_scores = -cross_val_score(pipeline, X, y, cv=kf, scoring=mae_scorer)
@@ -143,7 +140,7 @@ print(f"5-Fold CV R²:   Mean={r2_scores.mean():.4f}, Std={r2_scores.std():.4f}"
 print(f"5-Fold CV RMSE: Mean={rmse_scores.mean():.2f}, Std={rmse_scores.std():.2f}")
 print(f"5-Fold CV MAE:  Mean={mae_scores.mean():.2f}, Std={mae_scores.std():.2f}")
 
-# 可以将每折结果画成箱线图/柱状图
+# make a result figure
 plt.figure(figsize=(7, 5))
 plt.boxplot([rmse_scores, mae_scores, r2_scores], tick_labels=["RMSE", "MAE", "R²"])
 plt.title("5-Fold Cross-Validation Results")
@@ -151,17 +148,18 @@ plt.ylabel("Score")
 plt.grid(axis="y")
 plt.tight_layout()
 
+# upload figure to clearml
 task.get_logger().report_matplotlib_figure(
     title="5-Fold Cross-Validation Results",
     series="CV Boxplot",
     figure=plt.gcf(),
     iteration=99,
 )
-# plt.show()
 plt.close()
 
 dump(pipeline, filename="cost-model.joblib", compress=9)
 
+# publish the model for pre serving
 for i in task.get_models().output:
     print(i.id)
     Model(model_id=i.id).publish()

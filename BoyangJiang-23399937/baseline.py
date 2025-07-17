@@ -5,7 +5,7 @@ LastEditors: Bryan x23399937@student.ncirl.ie
 LastEditTime: 2025-07-10 17:16:54
 FilePath: /cloud-cost-estimation/ml-models/baseline.py
 Description:
-
+base line model diff
 Copyright (c) 2025 by Bryan Jiang, All Rights Reserved.
 """
 
@@ -14,7 +14,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from joblib import dump
-from clearml import Task, Dataset, Logger, OutputModel
+from clearml import Task, Dataset
+import numpy as np
+import matplotlib.pyplot as plt
 
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
@@ -44,10 +46,10 @@ dataset = Dataset.get(
     dataset_project="NCI-ML-Project", dataset_name="Gcp_Cloud_Billing"
 )
 dataset_path = dataset.get_local_copy()
-csv_path = os.path.join(dataset_path, "gcp_final_approved_dataset.csv")
+csv_path = os.path.join(dataset_path, "gcp_dataset.csv")
 df = pd.read_csv(csv_path)
 
-# ✅ 特征工程逻辑（与你 preprocessing.py 保持一致）
+# feature engineering
 df["Service_Avg_Cost"] = (
     df.groupby("Service Name")["Total Cost (INR)"].transform("mean").fillna(0)
 )
@@ -92,14 +94,14 @@ features = cat_cols + num_cols
 X = df[features]
 y = df[target]
 
-# build pipeline
+# transformation
 preprocessor = ColumnTransformer(
     transformers=[
         ("num", StandardScaler(), num_cols),
         ("cat", OneHotEncoder(handle_unknown="ignore"), cat_cols),
     ]
 )
-
+# build pipeline
 pipeline = Pipeline(
     [
         ("preprocessor", preprocessor),
@@ -108,7 +110,7 @@ pipeline = Pipeline(
             BaggingRegressor(
                 estimator=DecisionTreeRegressor(max_depth=3),
                 n_estimators=30,
-                max_samples=0.8,  # 注意如果是百分数要转换
+                max_samples=0.8,
                 random_state=42,
                 n_jobs=-1,
             ),
@@ -127,7 +129,7 @@ rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 r2 = r2_score(y_test, y_pred)
 mae = mean_absolute_error(y_test, y_pred)
 
-# Baseline 1: DummyRegressor (均值预测)
+# Baseline 1: DummyRegressor
 dummy = DummyRegressor(strategy="mean")
 dummy.fit(X_train, y_train)
 y_pred_dummy = dummy.predict(X_test)
@@ -138,7 +140,7 @@ mae_dummy = mean_absolute_error(y_test, y_pred_dummy)
 # Baseline 2: LinearRegression
 lr = Pipeline(
     [
-        ("preprocessor", preprocessor),  # 确保用同样的预处理流程
+        ("preprocessor", preprocessor),
         ("regressor", LinearRegression()),
     ]
 )
@@ -156,12 +158,12 @@ logger.report_scalar("metrics", "RMSE_LR", value=rmse_lr, iteration=20)
 logger.report_scalar("metrics", "R2_LR", value=r2_lr, iteration=21)
 logger.report_scalar("metrics", "MAE_LR", value=mae_lr, iteration=22)
 
-# Print summary
+# display summary
 print(f"BaggingRegressor: RMSE={rmse:.2f}, R2={r2:.4f}, MAE={mae:.2f}")
 print(f"DummyRegressor:  RMSE={rmse_dummy:.2f}, R2={r2_dummy:.4f}, MAE={mae_dummy:.2f}")
 print(f"LinearRegression: RMSE={rmse_lr:.2f}, R2={r2_lr:.4f}, MAE={mae_lr:.2f}")
 
-# 绘制所有模型的预测结果对比
+# all model result comparison
 plt.figure(figsize=(12, 6))
 plt.plot(y_test.values, label="Actual", linewidth=2, color="black")
 plt.plot(y_pred, label="BaggingRegressor", linewidth=2)
@@ -182,27 +184,22 @@ task.get_logger().report_matplotlib_figure(
 )
 plt.close()
 
-
-import numpy as np
-import matplotlib.pyplot as plt
-
-# 模型名和指标
+# ml algorithm name and metrics
 model_names = ["BaggingRegressor", "DummyRegressor", "LinearRegression"]
 rmse_values = [rmse, rmse_dummy, rmse_lr]
 mae_values = [mae, mae_dummy, mae_lr]
 r2_values = [r2, r2_dummy, r2_lr]
 
-x = np.arange(len(model_names))  # 3个模型
+x = np.arange(len(model_names))
 bar_width = 0.22
 
 fig, ax = plt.subplots(figsize=(8, 6))
 
-# 三组柱子
 bars1 = ax.bar(x - bar_width, rmse_values, width=bar_width, label="RMSE")
 bars2 = ax.bar(x, mae_values, width=bar_width, label="MAE")
 bars3 = ax.bar(x + bar_width, r2_values, width=bar_width, label="R²")
 
-# 添加数值标签
+# add value tag
 for bars in [bars1, bars2, bars3]:
     for bar in bars:
         yval = bar.get_height()
@@ -234,12 +231,11 @@ ax.grid(axis="y", linestyle="--", alpha=0.6)
 
 plt.tight_layout()
 
-# 上传到ClearML
+# upload to the clearml
 task.get_logger().report_matplotlib_figure(
     title="Baseline Model Comparison (RMSE, MAE, R2)",
     series="Bar Chart",
     figure=plt.gcf(),
     iteration=6,
 )
-plt.show()
 plt.close()
