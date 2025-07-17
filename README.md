@@ -2,7 +2,7 @@
  * @Author: Bryan x23399937@student.ncirl.ie
  * @Date: 2025-06-20 19:06:26
  * @LastEditors: Bryan x23399937@student.ncirl.ie
- * @LastEditTime: 2025-07-17 21:31:23
+ * @LastEditTime: 2025-07-17 21:46:03
  * @FilePath: /cloud-cost-estimation/README.md
  * @Description: 
  * 
@@ -29,7 +29,7 @@ A Machine Learning Framework For Predictive Cloud Cost Estimation in AIOps
 ## Cloud Cost Estimation web site
 
 ### frontend address: 
-- http://
+- http://cloud-cost-frontend.s3-website-us-east-1.amazonaws.com
 ### backend address: 
 - http://clearml-serving.us-east-1.elasticbeanstalk.com:8080/serve/cloud_cost_predict
 

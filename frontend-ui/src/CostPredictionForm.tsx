@@ -22,13 +22,9 @@ const defaultValues = {
     "Network Outbound Data (Bytes)": 204800,
 };
 
-// const BASE_API_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
-//     ? 'http://localhost:3000/serve/cloud_cost_predict'
-//     : 'http://clearml-serving.us-east-1.elasticbeanstalk.com:8080/serve/cloud_cost_predict';
-const BASE_API_URL =
-    typeof window !== 'undefined'
-        ? `${window.location.origin}/serve/cloud_cost_predict`
-        : '/serve/cloud_cost_predict'; // SSR fallback
+const BASE_API_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+    ? 'http://localhost:3000/serve/cloud_cost_predict'
+    : 'http://clearml-serving.us-east-1.elasticbeanstalk.com:8080/serve/cloud_cost_predict';
 
 
 const CostPredictionForm: React.FC = () => {
