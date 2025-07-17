@@ -2,7 +2,7 @@
  * @Author: Bryan x23399937@student.ncirl.ie
  * @Date: 2025-06-20 19:06:26
  * @LastEditors: Bryan x23399937@student.ncirl.ie
- * @LastEditTime: 2025-07-17 21:14:01
+ * @LastEditTime: 2025-07-17 21:16:45
  * @FilePath: /cloud-cost-estimation/README.md
  * @Description: 
  * 
@@ -29,7 +29,7 @@ A Machine Learning Framework For Predictive Cloud Cost Estimation in AIOps
 ## Model Serving endpoint curl example
 
 HTTP API:
-curl -X POST "http://clearml-serving.us-east-1.elasticbeanstalk.com:8080/serve/cloud_cost_predict/1" -H "accept: application/json" -H "Content-Type: application/json" -d '
+curl -X POST "http://clearml-serving.us-east-1.elasticbeanstalk.com:8080/serve/cloud_cost_predict" -H "accept: application/json" -H "Content-Type: application/json" -d '
 {
   "Service Name": "Cloud Storage",
   "Region/Zone": "us-west1",
