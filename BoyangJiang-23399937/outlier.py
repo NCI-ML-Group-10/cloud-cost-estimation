@@ -27,6 +27,7 @@ selected_columns = [
     "Memory Utilization (%)",
     "Network Inbound Data (Bytes)",
     "Network Outbound Data (Bytes)",
+    "Cost per Quantity ($)",
 ]
 df_selected = df[selected_columns]
 df.replace(["?", -1, -99, -999], np.nan, inplace=True)

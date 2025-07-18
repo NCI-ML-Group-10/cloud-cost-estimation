@@ -1,4 +1,4 @@
-.ml-models/__pycache__
+*/__pycache__
 .frontend-ui/node_modules
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.

@@ -1,62 +1,42 @@
-"""
-Author: Bryan x23399937@student.ncirl.ie
-Date: 2025-06-19 20:17:20
-LastEditors: Bryan x23399937@student.ncirl.ie
-LastEditTime: 2025-07-17 20:56:01
-FilePath: /cloud-cost-estimation/BoyangJiang-23399937/feature.py
-Description:
-
-Copyright (c) 2025 by Bryan Jiang, All Rights Reserved.
-"""
-
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.feature_selection import RFE
-from sklearn.pipeline import Pipeline, make_pipeline
-from preprocessing import build_preprocessor, load_csv_data
 import matplotlib.pyplot as plt
+import lightgbm as lgb
+from sklearn.preprocessing import LabelEncoder
 
-df = load_csv_data()
+df = pd.read_csv("~/Downloads/gcp_final_approved_dataset.csv")
 
-preprocessor, features, target = build_preprocessor()
+# define target field
+target = "Rounded Cost ($)"
+features = [col for col in df.columns if col != target]
+
+# automatic labelencode all the field that are not numberic
+for col in features:
+    if df[col].dtype == "object" or str(df[col].dtype).startswith("category"):
+        df[col] = df[col].astype(str).fillna("NAN")
+        df[col] = LabelEncoder().fit_transform(df[col])
 
 X = df[features]
 y = df[target]
 
-# split data set
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
+model = lgb.LGBMRegressor(n_estimators=200, random_state=42)
+model.fit(X, y)
 
-# init
-rfe = RFE(
-    estimator=RandomForestRegressor(n_estimators=100, random_state=42),
-    n_features_to_select=13,
-    step=1,
-)
+# fields importance
+importances = model.feature_importances_
+feat_names = X.columns
+indices = importances.argsort()[::-1]
 
-# make pipeline
-pipeline = make_pipeline(preprocessor, rfe)
+plt.figure(figsize=(14, 6))
+plt.bar([feat_names[i] for i in indices], importances[indices])
+plt.yscale("log")  # 对数刻度
+plt.xlabel("Feature Selection")
+plt.ylabel("Importance (log scale)")
+plt.title("Feature Importance for All Raw Fields (No OneHot)")
+plt.xticks(rotation=35, ha="right")
+plt.tight_layout()
+# plt.show()
+plt.savefig("feature_importance.png")
 
-# fitting training dataset
-pipeline.fit(X_train, y_train)
-
-# get processed feature name
-processed_feature_names = preprocessor.get_feature_names_out()
-
-# get rfe feature selection result
-selected_mask = rfe.support_
-ranking = rfe.ranking_
-
-# make result DataFrame
-selected_result = pd.DataFrame(
-    {
-        "Feature": processed_feature_names,
-        "Selected": selected_mask,
-        "Ranking": ranking,
-    }
-).sort_values(by="Ranking")
-
-print("💡 best features（Top 5）:")
-print(selected_result[selected_result["Selected"] == True])
+# 如需查看数值
+for i in indices:
+    print(f"{feat_names[i]}: {importances[i]}")

@@ -46,7 +46,7 @@ dataset = Dataset.get(
     dataset_project="NCI-ML-Project", dataset_name="Gcp_Cloud_Billing"
 )
 dataset_path = dataset.get_local_copy()
-csv_path = os.path.join(dataset_path, "gcp_dataset.csv")
+csv_path = os.path.join(dataset_path, "gcp_final_approved_dataset.csv")
 df = pd.read_csv(csv_path)
 
 # feature engineering
@@ -80,6 +80,7 @@ num_cols = [
     "Memory Utilization (%)",
     "Network Inbound Data (Bytes)",
     "Network Outbound Data (Bytes)",
+    "Cost per Quantity ($)",
     "Service_Avg_Cost",
     "Region_Zone_Avg_Cost",
     "start_hour",
@@ -197,7 +198,7 @@ fig, ax = plt.subplots(figsize=(8, 6))
 
 bars1 = ax.bar(x - bar_width, rmse_values, width=bar_width, label="RMSE")
 bars2 = ax.bar(x, mae_values, width=bar_width, label="MAE")
-bars3 = ax.bar(x + bar_width, r2_values, width=bar_width, label="R²")
+bars3 = ax.bar(x + bar_width, [v * 100 for v in r2_values], width=bar_width, label="R²")
 
 # add value tag
 for bars in [bars1, bars2, bars3]:
@@ -207,7 +208,7 @@ for bars in [bars1, bars2, bars3]:
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
                 yval,
-                f"{yval:.2f}",
+                f"{yval:.1f}",
                 ha="center",
                 va="bottom",
                 fontsize=10,
@@ -224,7 +225,7 @@ for bars in [bars1, bars2, bars3]:
 
 ax.set_xticks(x)
 ax.set_xticklabels(model_names, rotation=15)
-ax.set_ylabel("Metric Value")
+ax.set_ylabel("Metric Value (RMSE/MAE, R² x100)")
 ax.set_title("Baseline Model Comparison: RMSE, MAE, R²")
 ax.legend()
 ax.grid(axis="y", linestyle="--", alpha=0.6)
@@ -238,4 +239,5 @@ task.get_logger().report_matplotlib_figure(
     figure=plt.gcf(),
     iteration=6,
 )
+plt.savefig("baseline_model.png")
 plt.close()
