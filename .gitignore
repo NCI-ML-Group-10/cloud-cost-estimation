@@ -45,3 +45,5 @@
 
 *.joblib
 *.pkl
+
+clearml-serving/.elasticbeanstalk/app_versions
