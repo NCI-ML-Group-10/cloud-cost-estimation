@@ -8,7 +8,7 @@ import pandas as pd
 class Preprocess(object):
     def __init__(self):
         print(
-            "-----------------this is boyang jiang model serving--------22-----------"
+            "-----------------this is boyang jiang model serving--------33-----------"
         )
         pass
 
@@ -16,7 +16,7 @@ class Preprocess(object):
         self, body: Dict, state: dict, collect_custom_statistics_fn=None
     ) -> Any:
         print(
-            "-------------------this is boyang jiang model preprocess----------------"
+            "-------------------this is boyang jiang model preprocess----333------------"
         )
         """
         from HTTP JSON get request data
