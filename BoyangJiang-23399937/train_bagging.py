@@ -46,7 +46,7 @@ dataset = Dataset.get(
     dataset_project="NCI-ML-Project", dataset_name="Gcp_Cloud_Billing"
 )
 dataset_path = dataset.get_local_copy()
-csv_path = os.path.join(dataset_path, "gcp_dataset.csv")
+csv_path = os.path.join(dataset_path, "gcp_final_approved_dataset.csv")
 df = pd.read_csv(csv_path)
 
 # feature engineering
@@ -157,6 +157,8 @@ task.get_logger().report_matplotlib_figure(
 )
 plt.close()
 
+# for k-fold sampling method, when evaluation is done, must be full amount fitting
+pipeline.fit(X, y)
 dump(pipeline, filename="cost-model.joblib", compress=9)
 
 # publish the model for pre serving
