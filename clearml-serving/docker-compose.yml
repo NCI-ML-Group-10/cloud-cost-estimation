@@ -76,6 +76,7 @@ services:
 
   clearml-serving-inference:
     image: allegroai/clearml-serving-inference:latest
+    entrypoint: ["/bin/sh", "-c", "pip install scikit-learn==1.7.0 && exec clearml_serving/serving/entrypoint.sh"]
     container_name: clearml-serving-inference
     restart: unless-stopped
     # optimize perforamnce
