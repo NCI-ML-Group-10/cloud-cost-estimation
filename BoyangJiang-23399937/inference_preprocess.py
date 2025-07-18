@@ -7,14 +7,16 @@ import pandas as pd
 # ClearML-Serving require the class name must be Preprocess
 class Preprocess(object):
     def __init__(self):
-        print("-----------------this is boyang jiang model serving-------------------")
+        print(
+            "-----------------this is boyang jiang model serving--------22-----------"
+        )
         pass
 
     def preprocess(
         self, body: Dict, state: dict, collect_custom_statistics_fn=None
     ) -> Any:
         print(
-            "-------------------this is boyang jiang model serving preprocess--------"
+            "-------------------this is boyang jiang model preprocess----------------"
         )
         """
         from HTTP JSON get request data
