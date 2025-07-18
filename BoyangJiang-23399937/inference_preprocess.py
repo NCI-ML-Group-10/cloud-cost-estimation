@@ -26,6 +26,7 @@ class Preprocess(object):
         mem_util = float(body.get("Memory Utilization (%)", 0.0))
         net_in = float(body.get("Network Inbound Data (Bytes)", 0.0))
         net_out = float(body.get("Network Outbound Data (Bytes)", 0.0))
+        cost_per_quantity = float(body.get("Cost per Quantity ($)", 0.0))
         total_cost = float(body.get("Total Cost (INR)", 0.0))
 
         # time handling
@@ -58,6 +59,7 @@ class Preprocess(object):
                     mem_util,
                     net_in,
                     net_out,
+                    cost_per_quantity,
                     service_avg_cost,
                     region_zone_avg_cost,
                     start_hour,
@@ -76,6 +78,7 @@ class Preprocess(object):
                 "Memory Utilization (%)",
                 "Network Inbound Data (Bytes)",
                 "Network Outbound Data (Bytes)",
+                "Cost per Quantity ($)",
                 "Service_Avg_Cost",
                 "Region_Zone_Avg_Cost",
                 "start_hour",

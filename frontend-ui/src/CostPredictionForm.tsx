@@ -1,15 +1,46 @@
 import React, { useState } from 'react';
 import { Form, InputNumber, Select, Button, message, Row, Col, Typography } from 'antd';
 
-
 const SERVICE_OPTIONS = [
-    { label: 'Cloud Storage', value: 'Cloud Storage' },
+    { label: 'AI Platform', value: 'AI Platform' },
+    { label: 'BigQuery', value: 'BigQuery' },
+    { label: 'Cloud Armor', value: 'Cloud Armor' },
+    { label: 'Cloud Build', value: 'Cloud Build' },
+    { label: 'Cloud CDN', value: 'Cloud CDN' },
+    { label: 'Cloud Data Fusion', value: 'Cloud Data Fusion' },
+    { label: 'Cloud Dataproc', value: 'Cloud Dataproc' },
+    { label: 'Cloud Endpoints', value: 'Cloud Endpoints' },
     { label: 'Cloud Functions', value: 'Cloud Functions' },
+    { label: 'Cloud Interconnect', value: 'Cloud Interconnect' },
+    { label: 'Cloud Load Balancing', value: 'Cloud Load Balancing' },
     { label: 'Cloud Memorystore', value: 'Cloud Memorystore' },
+    { label: 'Cloud NAT', value: 'Cloud NAT' },
+    { label: 'Cloud Run', value: 'Cloud Run' },
+    { label: 'Cloud SQL', value: 'Cloud SQL' },
+    { label: 'Cloud Spanner', value: 'Cloud Spanner' },
+    { label: 'Cloud Storage', value: 'Cloud Storage' },
+    { label: 'Cloud VPC', value: 'Cloud VPC' },
+    { label: 'Compute Engine', value: 'Compute Engine' },
+    { label: 'Container Registry', value: 'Container Registry' },
+    { label: 'Dataflow', value: 'Dataflow' },
+    { label: 'Firestore', value: 'Firestore' },
+    { label: 'Kubernetes Engine', value: 'Kubernetes Engine' },
+    { label: 'Pub/Sub', value: 'Pub/Sub' }
 ];
+
 const REGION_OPTIONS = [
-    { label: 'us-west1', value: 'us-west1' },
+    { label: 'asia-east1', value: 'asia-east1' },
+    { label: 'asia-northeast1', value: 'asia-northeast1' },
+    { label: 'asia-southeast1', value: 'asia-southeast1' },
+    { label: 'australia-southeast1', value: 'australia-southeast1' },
+    { label: 'europe-north1', value: 'europe-north1' },
     { label: 'europe-west1', value: 'europe-west1' },
+    { label: 'europe-west3', value: 'europe-west3' },
+    { label: 'northamerica-northeast1', value: 'northamerica-northeast1' },
+    { label: 'southamerica-east1', value: 'southamerica-east1' },
+    { label: 'us-central1', value: 'us-central1' },
+    { label: 'us-east1', value: 'us-east1' },
+    { label: 'us-west1', value: 'us-west1' }
 ];
 
 const defaultValues = {
@@ -20,6 +51,7 @@ const defaultValues = {
     "Memory Utilization (%)": 20,
     "Network Inbound Data (Bytes)": 102400,
     "Network Outbound Data (Bytes)": 204800,
+    "Cost per Quantity ($)": 2.1,
 };
 
 // const BASE_API_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
@@ -118,6 +150,11 @@ const CostPredictionForm: React.FC = () => {
                     </Col>
                     <Col xs={24} sm={12}>
                         <Form.Item label="Network Outbound Data (Bytes)" name="Network Outbound Data (Bytes)" rules={[{ required: true }]}>
+                            <InputNumber min={0} style={{ width: '100%' }} />
+                        </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={12}>
+                        <Form.Item label="Cost per Quantity ($)" name="Cost per Quantity ($)" rules={[{ required: true }]}>
                             <InputNumber min={0} style={{ width: '100%' }} />
                         </Form.Item>
                     </Col>

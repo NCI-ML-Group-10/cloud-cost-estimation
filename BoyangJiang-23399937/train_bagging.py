@@ -80,6 +80,7 @@ num_cols = [
     "Memory Utilization (%)",
     "Network Inbound Data (Bytes)",
     "Network Outbound Data (Bytes)",
+    "Cost per Quantity ($)",
     "Service_Avg_Cost",
     "Region_Zone_Avg_Cost",
     "start_hour",
