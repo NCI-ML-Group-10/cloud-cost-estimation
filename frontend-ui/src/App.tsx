@@ -374,15 +374,12 @@ const Independent: React.FC = () => {
         New Conversation
       </Button>
 
-      {/* 🌟 会话管理 */}
       <Conversations
         items={conversations}
         className={styles.conversations}
         activeKey={curConversation}
         onActiveChange={async (val) => {
           abortController.current?.abort();
-          // The abort execution will trigger an asynchronous requestFallback, which may lead to timing issues.
-          // In future versions, the sessionId capability will be added to resolve this problem.
           setTimeout(() => {
             setCurConversation(val);
             setMessages(messageHistory?.[val] || []);
@@ -406,8 +403,6 @@ const Independent: React.FC = () => {
                 const newList = conversations.filter((item) => item.key !== conversation.key);
                 const newKey = newList?.[0]?.key;
                 setConversations(newList);
-                // The delete operation modifies curConversation and triggers onActiveChange, so it needs to be executed with a delay to ensure it overrides correctly at the end.
-                // This feature will be fixed in a future version.
                 setTimeout(() => {
                   if (conversation.key === curConversation) {
                     setCurConversation(newKey);
@@ -429,7 +424,6 @@ const Independent: React.FC = () => {
   const chatList = (
     <div className={styles.chatList}>
       {messages?.length ? (
-        /* 🌟 消息列表 */
         <Bubble.List
           items={messages?.map((i) => ({
             ...i.message,
@@ -480,7 +474,6 @@ const Independent: React.FC = () => {
   );
 
   useEffect(() => {
-    // history mock
     if (messages?.length) {
       setMessageHistory((prev) => ({
         ...prev,
@@ -489,7 +482,6 @@ const Independent: React.FC = () => {
     }
   }, [messages]);
 
-  // ==================== Render =================
   return (
     <div className={styles.layout}>
       {chatSider}
