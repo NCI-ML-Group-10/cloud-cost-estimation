@@ -1,0 +1,13 @@
+{
+  "Service_Name": "Cloud Build",
+  "Region_Zone": "us-central1",
+  "Usage_Quantity": 365.1951,
+  "CPU_Utilization": 3.78,
+  "Memory_Utilization": 67.68,
+  "Network_Inbound_Data": 59688317254.0,
+  "Network_Outbound_Data": 65131560182.0,
+  "Cost_Per_Quantity": 6.66,
+  "Actual_Cost_INR": 201856.00
+}
+
+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
